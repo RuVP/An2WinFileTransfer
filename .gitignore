@@ -1,0 +1,39 @@
+# Build folders
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs and temp files
+*.log
+*.tmp
+*.cache
+*.bak
+
+# Build results
+Debug/
+Release/
+x64/
+x86/
+
+# NuGet packages
+packages/
+*.nupkg
+
+# Rider / VS Code
+.idea/
+.vscode/
+
+# Publish output
+publish/
+
+# Other generated files
+*.pdb
+*.dbmdl
+*.mdf
+*.ldf
