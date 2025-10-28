@@ -1,29 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using An2WinFileTransfer.Enums;
 using An2WinFileTransfer.Extensions;
 using An2WinFileTransfer.Models;
+using An2WinFileTransfer.Services;
 using MediaDevices;
 
-namespace An2WinFileTransfer
+namespace An2WinFileTransfer.UI.Forms
 {
-    public partial class Form1 : Form
+    public partial class FormMain : Form
     {
         private IEnumerable<string> _connectedDevices = new List<string>();
         private IEnumerable<FileType> _fileTypes = new List<FileType>();
         private Timer _elapsedTimer = new Timer();
         private DateTime backupStartTime;
 
+        private readonly DeviceService _deviceService = new DeviceService();
+        private BackupService _backupService;
+
         private string _selectedDeviceName = string.Empty;
 
-        public Form1()
+        public FormMain()
         {
             InitializeComponent();
-            this.Load += Form1_Load;
+            this.Load += FormMain_Load;
 
             _elapsedTimer.Interval = 1000; // 1 second
             _elapsedTimer.Tick += (s, ev) =>
@@ -33,7 +36,7 @@ namespace An2WinFileTransfer
             };
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void FormMain_Load(object sender, EventArgs e)
         {
             try
             {
@@ -97,6 +100,11 @@ namespace An2WinFileTransfer
                 groupBoxFileTypes.Controls.Add(checkBox);
                 controlCount++;
             }
+
+            if (radioButtonCopyAll.Checked)
+            {
+                groupBoxFileTypes.Enabled = false;
+            }
         }
 
         private void CheckBox_CheckedChanged(object sender, EventArgs e)
@@ -159,104 +167,6 @@ namespace An2WinFileTransfer
             return fileTypes;
         }
 
-        private void BackupFromDevice(MediaDevice device, string sourcePath, string targetRoot)
-        {
-            if (!device.DirectoryExists(sourcePath))
-            {
-                Append($"Source folder not found: {sourcePath}");
-                return;
-            }
-
-            var copyAllFiles = radioButtonCopyAll.Checked;
-
-            var enabledExtensions = new HashSet<string>(
-                _fileTypes
-                    .Where(ft => ft.IsEnabled && !string.IsNullOrWhiteSpace(ft.Extension))
-                    .Select(ft => "." + ft.Extension.Trim().ToLowerInvariant()));
-
-            var files = device.EnumerateFiles(sourcePath, "*.*", SearchOption.AllDirectories)
-                .Where(f =>
-                {
-                    if (copyAllFiles)
-                        return true; // include all files
-
-                    var ext = Path.GetExtension(f)?.ToLowerInvariant() ?? string.Empty;
-                    return enabledExtensions.Contains(ext);
-                }).ToList();
-
-            int processedFileCount = 0, copiedFileCount = 0, skippedFileCount = 0, copyFailedFileCount = 0, totalFileCount = files.Count;
-
-            foreach (var file in files)
-            {
-                try
-                {
-                    var fileInfo = device.GetFileInfo(file);
-                    if (fileInfo == null)
-                    {
-                        Append($"Skipping (no info): {file}");
-                        copyFailedFileCount++;
-                        continue;
-                    }
-
-                    processedFileCount++;
-
-                    this.Invoke((Action)(() =>
-                    {
-                        labelProgress.Text = $"Processing file {processedFileCount} of {totalFileCount}. Copied: {copiedFileCount} | Skipped: {skippedFileCount} | Failed: {copyFailedFileCount}";
-                    }));
-
-                    var relativePath = file.Substring(sourcePath.Length).TrimStart('\\', '/');
-                    var localPath = Path.Combine(targetRoot, relativePath.Replace('/', '\\'));
-
-                    var normalized = relativePath.Replace('/', '\\');
-
-                    if (normalized.IndexOf("\\.thumbnails\\", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                        normalized.EndsWith("\\.thumbnails", StringComparison.OrdinalIgnoreCase))
-                    {
-                        skippedFileCount++;
-                        continue;
-                    }
-
-                    Directory.CreateDirectory(Path.GetDirectoryName(localPath));
-
-                    if (ShouldCopyFile(fileInfo, localPath))
-                    {
-                        Append($"Copying: {relativePath}");
-                        device.DownloadFile(file, localPath);
-
-                        if (fileInfo.LastWriteTime.HasValue)
-                        {
-                            File.SetLastWriteTime(localPath, fileInfo.LastWriteTime.Value);
-                        }
-
-                        copiedFileCount++;
-                    }
-                    else
-                    {
-                        skippedFileCount++;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    copyFailedFileCount++;
-                    Append($"Error copying file: {file} - {ex.Message}");
-                }
-            }
-
-            Append($"Copied: {copiedFileCount}, Skipped: {skippedFileCount}, Failed: {copyFailedFileCount}, Total Processed: {processedFileCount}.");
-        }
-
-        private bool ShouldCopyFile(MediaFileInfo fileInfo, string localPath)
-        {
-            if (!File.Exists(localPath))
-                return true;
-
-            var localFile = new FileInfo(localPath);
-
-            return Math.Abs((long)fileInfo.Length - localFile.Length) > 1024 ||
-                   Math.Abs((fileInfo.LastWriteTime - localFile.LastWriteTime).Value.TotalSeconds) > 2;
-        }
-
         private void PopulateDeviceList()
         {
             _connectedDevices = MediaDevice.GetDevices().Select(d => d.FriendlyName);
@@ -283,7 +193,14 @@ namespace An2WinFileTransfer
 
         private void Append(string text)
         {
-            // ToDo: Add later.
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action)(() => Append(text)));
+                return;
+            }
+
+            // update label safely on UI thread
+            labelProgress.Text = text;
         }
 
         private void buttonBrowseBackupFolderPath_Click(object sender, EventArgs e)
@@ -306,62 +223,35 @@ namespace An2WinFileTransfer
         {
             var isCopySelected = radioButtonCopySelected.Checked;
             groupBoxFileTypes.Enabled = isCopySelected;
-            EAppSettings.CopyAllFiles.SaveSettings(isCopySelected ? "false" : "true");
+            EAppSettings.CopyAllFiles.SaveSettings(isCopySelected ? false.ToString() : true.ToString());
         }
 
         private async void buttonStartBackup_Click(object sender, EventArgs e)
         {
-            if (_selectedDeviceName.IsNullOrWhiteSpace())
-            {
-                Append("Please select a device before starting the backup.");
-                MessageBox.Show("Please select a device before starting the backup.", "No Device Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
             buttonStartBackup.Enabled = false;
             backupStartTime = DateTime.Now;
             _elapsedTimer.Start();
 
-            labelProgress.Text = "Evaluating files to backup...";
+            _backupService = new BackupService(Append);
 
-            try
+            await Task.Run(() =>
             {
-                await Task.Run(() => PerformBackup());
-            }
-            catch (Exception ex)
-            {
-                Append($"Error: {ex.Message}");
-            }
-            finally
-            {
-                _elapsedTimer.Stop();
-                buttonStartBackup.Enabled = true;
-            }
-        }
+                var backupRoot = textBoxBackupFolderPath.Text;
+                var sourcePath = textBoxPhoneMtpPath.Text;
+                var copyAll = radioButtonCopyAll.Checked;
 
-        private void PerformBackup()
-        {
-            var backupRoot = textBoxBackupFolderPath.Text;
-            var phoneFolder = textBoxPhoneMtpPath.Text.TrimEnd('\\', '/');
+                using (var device = _deviceService.ConnectToDevice(_selectedDeviceName))
+                {
+                    _backupService.BackupFromDevice(device, sourcePath, backupRoot, _fileTypes, copyAll);
+                    _deviceService.DisconnectDevice(device);
+                }
 
-            Directory.CreateDirectory(backupRoot);
-            var device = MediaDevice.GetDevices().First(d => d.FriendlyName == _selectedDeviceName);
-
-            try
-            {
-                device.Connect();
-                Append($"Connected to: {device.FriendlyName}");
-                BackupFromDevice(device, phoneFolder, backupRoot);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                device.Disconnect();
-                Append($"Disconnected from: {device.FriendlyName}");
-            }
+                Invoke((Action)(() =>
+                {
+                    _elapsedTimer.Stop();
+                    buttonStartBackup.Enabled = true;
+                }));
+            });
         }
     }
 }

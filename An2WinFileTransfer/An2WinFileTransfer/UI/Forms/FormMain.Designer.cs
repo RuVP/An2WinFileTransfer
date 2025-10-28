@@ -1,6 +1,6 @@
-﻿namespace An2WinFileTransfer
+﻿namespace An2WinFileTransfer.UI.Forms
 {
-    partial class Form1
+    partial class FormMain
     {
         /// <summary>
         /// Required designer variable.
@@ -48,34 +48,35 @@
             // comboBoxDeviceNames
             // 
             this.comboBoxDeviceNames.FormattingEnabled = true;
-            this.comboBoxDeviceNames.Location = new System.Drawing.Point(128, 44);
-            this.comboBoxDeviceNames.Margin = new System.Windows.Forms.Padding(2);
+            this.comboBoxDeviceNames.Location = new System.Drawing.Point(171, 54);
+            this.comboBoxDeviceNames.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.comboBoxDeviceNames.Name = "comboBoxDeviceNames";
-            this.comboBoxDeviceNames.Size = new System.Drawing.Size(178, 21);
+            this.comboBoxDeviceNames.Size = new System.Drawing.Size(236, 24);
             this.comboBoxDeviceNames.TabIndex = 0;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(17, 47);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Location = new System.Drawing.Point(23, 58);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(107, 13);
+            this.label1.Size = new System.Drawing.Size(131, 16);
             this.label1.TabIndex = 1;
             this.label1.Text = "Connected Devices: ";
             // 
             // textBoxBackupFolderPath
             // 
-            this.textBoxBackupFolderPath.Location = new System.Drawing.Point(128, 19);
+            this.textBoxBackupFolderPath.Location = new System.Drawing.Point(171, 23);
+            this.textBoxBackupFolderPath.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxBackupFolderPath.Name = "textBoxBackupFolderPath";
-            this.textBoxBackupFolderPath.Size = new System.Drawing.Size(264, 20);
+            this.textBoxBackupFolderPath.Size = new System.Drawing.Size(351, 22);
             this.textBoxBackupFolderPath.TabIndex = 2;
             // 
             // buttonBrowseBackupFolderPath
             // 
-            this.buttonBrowseBackupFolderPath.Location = new System.Drawing.Point(398, 16);
+            this.buttonBrowseBackupFolderPath.Location = new System.Drawing.Point(531, 20);
+            this.buttonBrowseBackupFolderPath.Margin = new System.Windows.Forms.Padding(4);
             this.buttonBrowseBackupFolderPath.Name = "buttonBrowseBackupFolderPath";
-            this.buttonBrowseBackupFolderPath.Size = new System.Drawing.Size(75, 23);
+            this.buttonBrowseBackupFolderPath.Size = new System.Drawing.Size(100, 28);
             this.buttonBrowseBackupFolderPath.TabIndex = 3;
             this.buttonBrowseBackupFolderPath.Text = "Browse";
             this.buttonBrowseBackupFolderPath.UseVisualStyleBackColor = true;
@@ -84,19 +85,19 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(42, 22);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Location = new System.Drawing.Point(56, 27);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(82, 13);
+            this.label2.Size = new System.Drawing.Size(101, 16);
             this.label2.TabIndex = 4;
             this.label2.Text = "Backup Folder: ";
             // 
             // radioButtonCopyAll
             // 
             this.radioButtonCopyAll.AutoSize = true;
-            this.radioButtonCopyAll.Location = new System.Drawing.Point(20, 126);
+            this.radioButtonCopyAll.Location = new System.Drawing.Point(27, 155);
+            this.radioButtonCopyAll.Margin = new System.Windows.Forms.Padding(4);
             this.radioButtonCopyAll.Name = "radioButtonCopyAll";
-            this.radioButtonCopyAll.Size = new System.Drawing.Size(169, 17);
+            this.radioButtonCopyAll.Size = new System.Drawing.Size(214, 20);
             this.radioButtonCopyAll.TabIndex = 5;
             this.radioButtonCopyAll.TabStop = true;
             this.radioButtonCopyAll.Text = "Copy All Files (time consuming)";
@@ -105,9 +106,10 @@
             // radioButtonCopySelected
             // 
             this.radioButtonCopySelected.AutoSize = true;
-            this.radioButtonCopySelected.Location = new System.Drawing.Point(20, 103);
+            this.radioButtonCopySelected.Location = new System.Drawing.Point(27, 127);
+            this.radioButtonCopySelected.Margin = new System.Windows.Forms.Padding(4);
             this.radioButtonCopySelected.Name = "radioButtonCopySelected";
-            this.radioButtonCopySelected.Size = new System.Drawing.Size(142, 17);
+            this.radioButtonCopySelected.Size = new System.Drawing.Size(177, 20);
             this.radioButtonCopySelected.TabIndex = 6;
             this.radioButtonCopySelected.TabStop = true;
             this.radioButtonCopySelected.Text = "Copy selected file types: ";
@@ -116,18 +118,21 @@
             // 
             // groupBoxFileTypes
             // 
-            this.groupBoxFileTypes.Location = new System.Drawing.Point(195, 103);
+            this.groupBoxFileTypes.Location = new System.Drawing.Point(260, 127);
+            this.groupBoxFileTypes.Margin = new System.Windows.Forms.Padding(4);
             this.groupBoxFileTypes.Name = "groupBoxFileTypes";
-            this.groupBoxFileTypes.Size = new System.Drawing.Size(403, 108);
+            this.groupBoxFileTypes.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBoxFileTypes.Size = new System.Drawing.Size(537, 133);
             this.groupBoxFileTypes.TabIndex = 7;
             this.groupBoxFileTypes.TabStop = false;
             this.groupBoxFileTypes.Text = "File Types";
             // 
             // buttonStartBackup
             // 
-            this.buttonStartBackup.Location = new System.Drawing.Point(266, 241);
+            this.buttonStartBackup.Location = new System.Drawing.Point(355, 297);
+            this.buttonStartBackup.Margin = new System.Windows.Forms.Padding(4);
             this.buttonStartBackup.Name = "buttonStartBackup";
-            this.buttonStartBackup.Size = new System.Drawing.Size(96, 42);
+            this.buttonStartBackup.Size = new System.Drawing.Size(128, 52);
             this.buttonStartBackup.TabIndex = 8;
             this.buttonStartBackup.Text = "Start Backup";
             this.buttonStartBackup.UseVisualStyleBackColor = true;
@@ -135,26 +140,29 @@
             // 
             // textBoxPhoneMtpPath
             // 
-            this.textBoxPhoneMtpPath.Location = new System.Drawing.Point(128, 70);
+            this.textBoxPhoneMtpPath.Location = new System.Drawing.Point(171, 86);
+            this.textBoxPhoneMtpPath.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxPhoneMtpPath.Name = "textBoxPhoneMtpPath";
-            this.textBoxPhoneMtpPath.Size = new System.Drawing.Size(264, 20);
+            this.textBoxPhoneMtpPath.Size = new System.Drawing.Size(351, 22);
             this.textBoxPhoneMtpPath.TabIndex = 9;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(29, 73);
+            this.label3.Location = new System.Drawing.Point(39, 90);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(95, 13);
+            this.label3.Size = new System.Drawing.Size(155, 20);
             this.label3.TabIndex = 10;
-            this.label3.Text = "Phone MTP Path: ";
+            this.label3.Text = "Phone MTP Name: ";
             // 
             // labelProgress
             // 
             this.labelProgress.AutoSize = true;
-            this.labelProgress.Location = new System.Drawing.Point(12, 288);
+            this.labelProgress.Location = new System.Drawing.Point(16, 354);
+            this.labelProgress.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelProgress.Name = "labelProgress";
-            this.labelProgress.Size = new System.Drawing.Size(235, 13);
+            this.labelProgress.Size = new System.Drawing.Size(287, 16);
             this.labelProgress.TabIndex = 11;
             this.labelProgress.Text = "Configure settings and click Start Backup button";
             // 
@@ -170,9 +178,11 @@
             this.groupBox1.Controls.Add(this.groupBoxFileTypes);
             this.groupBox1.Controls.Add(this.radioButtonCopyAll);
             this.groupBox1.Controls.Add(this.radioButtonCopySelected);
-            this.groupBox1.Location = new System.Drawing.Point(12, 12);
+            this.groupBox1.Location = new System.Drawing.Point(16, 15);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(604, 223);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox1.Size = new System.Drawing.Size(805, 274);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Settings";
@@ -180,26 +190,27 @@
             // labelElapsedTime
             // 
             this.labelElapsedTime.AutoSize = true;
-            this.labelElapsedTime.Location = new System.Drawing.Point(488, 288);
+            this.labelElapsedTime.Location = new System.Drawing.Point(651, 354);
+            this.labelElapsedTime.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelElapsedTime.Name = "labelElapsedTime";
-            this.labelElapsedTime.Size = new System.Drawing.Size(119, 13);
+            this.labelElapsedTime.Size = new System.Drawing.Size(146, 16);
             this.labelElapsedTime.TabIndex = 13;
             this.labelElapsedTime.Text = "Elapsed Time: 00:00:00";
             this.labelElapsedTime.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // Form1
+            // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(628, 311);
+            this.ClientSize = new System.Drawing.Size(837, 383);
             this.Controls.Add(this.labelElapsedTime);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.labelProgress);
             this.Controls.Add(this.buttonStartBackup);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MaximizeBox = false;
-            this.Name = "Form1";
+            this.Name = "FormMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Android 2 Windows File Transfer";
             this.groupBox1.ResumeLayout(false);

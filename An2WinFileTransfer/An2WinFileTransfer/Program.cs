@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using An2WinFileTransfer.UI.Forms;
 
 namespace An2WinFileTransfer
 {
@@ -13,7 +14,7 @@ namespace An2WinFileTransfer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new FormMain());
         }
     }
 }
