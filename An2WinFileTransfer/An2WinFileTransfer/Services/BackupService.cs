@@ -24,6 +24,8 @@ namespace An2WinFileTransfer.Services
                 return;
             }
 
+            var timestampedRoot = CreateNewTimeStampedFolder(targetRoot);
+
             _logAction("Evaluating files to backup...");
 
             var enabledExtensions = new HashSet<string>(
@@ -40,7 +42,7 @@ namespace An2WinFileTransfer.Services
                 }).ToList();
 
             int processedFileCount = 0, copiedFileCount = 0, skippedFileCount = 0, copyFailedFileCount = 0;
-            int totalFileCount = files.Count;
+            var totalFileCount = files.Count;
 
             foreach (var file in files)
             {
@@ -57,17 +59,16 @@ namespace An2WinFileTransfer.Services
                         continue;
                     }
 
-                    var relative = file.Substring(sourcePath.Length).TrimStart('\\', '/');
-                    var normalized = relative.Replace('/', '\\');
+                    var relativePath = GetRelativePath(sourcePath, file);
 
-                    if (normalized.IndexOf("\\.thumbnails\\", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                        normalized.EndsWith("\\.thumbnails", StringComparison.OrdinalIgnoreCase))
+                    if (relativePath.IndexOf("\\.thumbnails\\", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        relativePath.EndsWith("\\.thumbnails", StringComparison.OrdinalIgnoreCase))
                     {
                         skippedFileCount++;
                         continue;
                     }
 
-                    var localPath = Path.Combine(targetRoot, normalized);
+                    var localPath = Path.Combine(timestampedRoot, relativePath);
                     Directory.CreateDirectory(Path.GetDirectoryName(localPath));
 
                     if (ShouldCopyFile(fileInfo, localPath))
@@ -92,6 +93,23 @@ namespace An2WinFileTransfer.Services
             _logAction($"Backup completed: Copied={copiedFileCount}, Skipped={skippedFileCount}, Failed={copyFailedFileCount}, Total={processedFileCount}");
         }
 
+        private string GetRelativePath(string basePath, string fullPath)
+        {
+            if (fullPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+            {
+                return fullPath.Substring(basePath.Length).TrimStart('\\', '/');
+            }
+
+            var baseParts = basePath.Trim('\\', '/').Split('\\', '/');
+            var fullParts = fullPath.Trim('\\', '/').Split('\\', '/');
+
+            var index = fullParts.Length > baseParts.Length
+                ? baseParts.Length
+                : 0;
+
+            return string.Join("\\", fullParts.Skip(index)).Replace('/', '\\');
+        }
+
         private bool ShouldCopyFile(MediaFileInfo fileInfo, string localPath)
         {
             if (!File.Exists(localPath))
@@ -101,6 +119,14 @@ namespace An2WinFileTransfer.Services
 
             return Math.Abs((long)fileInfo.Length - localFile.Length) > 1024 ||
                    Math.Abs((fileInfo.LastWriteTime - localFile.LastWriteTime).Value.TotalSeconds) > 2;
+        }
+
+        private string CreateNewTimeStampedFolder(string basePath)
+        {
+            var timeStamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            var newFolderPath = Path.Combine(basePath, $"Backup_{timeStamp}");
+
+            return Directory.CreateDirectory(newFolderPath).FullName;
         }
     }
 }
