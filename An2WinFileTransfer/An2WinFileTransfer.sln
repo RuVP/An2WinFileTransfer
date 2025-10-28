@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "An2WinFileTransfer", "An2WiFileTransfer\An2WinFileTransfer.csproj", "{0D904930-9B47-47B8-BE1C-46B2640B6C03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "An2WinFileTransfer", "An2WinFileTransfer\An2WinFileTransfer.csproj", "{0D904930-9B47-47B8-BE1C-46B2640B6C03}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

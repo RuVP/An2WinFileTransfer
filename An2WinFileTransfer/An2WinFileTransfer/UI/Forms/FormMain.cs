@@ -9,9 +9,9 @@ using An2WinFileTransfer.Extensions;
 using An2WinFileTransfer.Models;
 using MediaDevices;
 
-namespace An2WinFileTransfer
+namespace An2WinFileTransfer.UI.Forms
 {
-    public partial class Form1 : Form
+    public partial class FormMain : Form
     {
         private IEnumerable<string> _connectedDevices = new List<string>();
         private IEnumerable<FileType> _fileTypes = new List<FileType>();
@@ -20,10 +20,10 @@ namespace An2WinFileTransfer
 
         private string _selectedDeviceName = string.Empty;
 
-        public Form1()
+        public FormMain()
         {
             InitializeComponent();
-            this.Load += Form1_Load;
+            this.Load += FormMain_Load;
 
             _elapsedTimer.Interval = 1000; // 1 second
             _elapsedTimer.Tick += (s, ev) =>
@@ -33,7 +33,7 @@ namespace An2WinFileTransfer
             };
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void FormMain_Load(object sender, EventArgs e)
         {
             try
             {
