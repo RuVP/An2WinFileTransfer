@@ -54,6 +54,8 @@
     <Compile Include="Extensions\EAppSettingsExtensions.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Services\BackupService.cs" />
+    <Compile Include="Services\DeviceService.cs" />
     <Compile Include="UI\Forms\FormMain.cs">
       <SubType>Form</SubType>
     </Compile>

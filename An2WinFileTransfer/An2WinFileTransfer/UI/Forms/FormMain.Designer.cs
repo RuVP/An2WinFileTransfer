@@ -66,7 +66,7 @@
             // textBoxBackupFolderPath
             // 
             this.textBoxBackupFolderPath.Location = new System.Drawing.Point(171, 23);
-            this.textBoxBackupFolderPath.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxBackupFolderPath.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxBackupFolderPath.Name = "textBoxBackupFolderPath";
             this.textBoxBackupFolderPath.Size = new System.Drawing.Size(351, 22);
             this.textBoxBackupFolderPath.TabIndex = 2;
@@ -74,7 +74,7 @@
             // buttonBrowseBackupFolderPath
             // 
             this.buttonBrowseBackupFolderPath.Location = new System.Drawing.Point(531, 20);
-            this.buttonBrowseBackupFolderPath.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.buttonBrowseBackupFolderPath.Margin = new System.Windows.Forms.Padding(4);
             this.buttonBrowseBackupFolderPath.Name = "buttonBrowseBackupFolderPath";
             this.buttonBrowseBackupFolderPath.Size = new System.Drawing.Size(100, 28);
             this.buttonBrowseBackupFolderPath.TabIndex = 3;
@@ -95,7 +95,7 @@
             // 
             this.radioButtonCopyAll.AutoSize = true;
             this.radioButtonCopyAll.Location = new System.Drawing.Point(27, 155);
-            this.radioButtonCopyAll.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.radioButtonCopyAll.Margin = new System.Windows.Forms.Padding(4);
             this.radioButtonCopyAll.Name = "radioButtonCopyAll";
             this.radioButtonCopyAll.Size = new System.Drawing.Size(214, 20);
             this.radioButtonCopyAll.TabIndex = 5;
@@ -107,7 +107,7 @@
             // 
             this.radioButtonCopySelected.AutoSize = true;
             this.radioButtonCopySelected.Location = new System.Drawing.Point(27, 127);
-            this.radioButtonCopySelected.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.radioButtonCopySelected.Margin = new System.Windows.Forms.Padding(4);
             this.radioButtonCopySelected.Name = "radioButtonCopySelected";
             this.radioButtonCopySelected.Size = new System.Drawing.Size(177, 20);
             this.radioButtonCopySelected.TabIndex = 6;
@@ -119,9 +119,9 @@
             // groupBoxFileTypes
             // 
             this.groupBoxFileTypes.Location = new System.Drawing.Point(260, 127);
-            this.groupBoxFileTypes.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBoxFileTypes.Margin = new System.Windows.Forms.Padding(4);
             this.groupBoxFileTypes.Name = "groupBoxFileTypes";
-            this.groupBoxFileTypes.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBoxFileTypes.Padding = new System.Windows.Forms.Padding(4);
             this.groupBoxFileTypes.Size = new System.Drawing.Size(537, 133);
             this.groupBoxFileTypes.TabIndex = 7;
             this.groupBoxFileTypes.TabStop = false;
@@ -130,7 +130,7 @@
             // buttonStartBackup
             // 
             this.buttonStartBackup.Location = new System.Drawing.Point(355, 297);
-            this.buttonStartBackup.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.buttonStartBackup.Margin = new System.Windows.Forms.Padding(4);
             this.buttonStartBackup.Name = "buttonStartBackup";
             this.buttonStartBackup.Size = new System.Drawing.Size(128, 52);
             this.buttonStartBackup.TabIndex = 8;
@@ -141,7 +141,7 @@
             // textBoxPhoneMtpPath
             // 
             this.textBoxPhoneMtpPath.Location = new System.Drawing.Point(171, 86);
-            this.textBoxPhoneMtpPath.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxPhoneMtpPath.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxPhoneMtpPath.Name = "textBoxPhoneMtpPath";
             this.textBoxPhoneMtpPath.Size = new System.Drawing.Size(351, 22);
             this.textBoxPhoneMtpPath.TabIndex = 9;
@@ -152,9 +152,9 @@
             this.label3.Location = new System.Drawing.Point(39, 90);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(114, 16);
+            this.label3.Size = new System.Drawing.Size(155, 20);
             this.label3.TabIndex = 10;
-            this.label3.Text = "Phone MTP Path: ";
+            this.label3.Text = "Phone MTP Name: ";
             // 
             // labelProgress
             // 
@@ -179,9 +179,9 @@
             this.groupBox1.Controls.Add(this.radioButtonCopyAll);
             this.groupBox1.Controls.Add(this.radioButtonCopySelected);
             this.groupBox1.Location = new System.Drawing.Point(16, 15);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox1.Size = new System.Drawing.Size(805, 274);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
