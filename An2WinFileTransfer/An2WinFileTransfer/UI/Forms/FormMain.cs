@@ -7,7 +7,6 @@ using An2WinFileTransfer.Enums;
 using An2WinFileTransfer.Extensions;
 using An2WinFileTransfer.Models;
 using An2WinFileTransfer.Services;
-using MediaDevices;
 
 namespace An2WinFileTransfer.UI.Forms
 {
@@ -169,16 +168,14 @@ namespace An2WinFileTransfer.UI.Forms
 
         private void PopulateDeviceList()
         {
-            _connectedDevices = MediaDevice.GetDevices().Select(d => d.FriendlyName);
+            _connectedDevices = _deviceService.GetConnectedDeviceNames();
 
-#if !DEBUG
             if (_connectedDevices.IsNullOrEmpty())
             {
                 MessageBox.Show("No connected MTP devices found. Please connect your device and enable file transfer mode.",
                     "No Devices Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-#endif
 
             comboBoxDeviceNames.Items.Clear();
             comboBoxDeviceNames.Items.AddRange(_connectedDevices.OrderBy(n => n).ToArray());
