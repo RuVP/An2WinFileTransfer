@@ -36,6 +36,9 @@
     <Reference Include="MediaDevices, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MediaDevices.1.10.0\lib\net48\MediaDevices.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -51,9 +54,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums\EAppSettings.cs" />
+    <Compile Include="Enums\ECopyStatus.cs" />
     <Compile Include="Extensions\EAppSettingsExtensions.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Models\BackupFileEntry.cs" />
+    <Compile Include="Models\BackupManifest.cs" />
     <Compile Include="Services\BackupService.cs" />
     <Compile Include="Services\DeviceService.cs" />
     <Compile Include="UI\Forms\FormMain.cs">

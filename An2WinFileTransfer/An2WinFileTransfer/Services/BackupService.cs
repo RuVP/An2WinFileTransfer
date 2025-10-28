@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using An2WinFileTransfer.Enums;
 using An2WinFileTransfer.Models;
 using MediaDevices;
+using Newtonsoft.Json;
 
 namespace An2WinFileTransfer.Services
 {
@@ -24,7 +26,14 @@ namespace An2WinFileTransfer.Services
                 return;
             }
 
-            var timestampedRoot = CreateNewTimeStampedFolder(targetRoot);
+            var timestampedRootFolder = CreateNewTimeStampedFolder(targetRoot);
+
+            var manifest = new BackupManifest
+            {
+                BackupTime = DateTime.UtcNow,
+                SourceRoot = sourcePath,
+                Files = new List<BackupFileEntry>()
+            };
 
             _logAction("Evaluating files to backup...");
 
@@ -36,7 +45,10 @@ namespace An2WinFileTransfer.Services
                 .Where(f =>
                 {
                     if (copyAllFiles)
+                    {
                         return true;
+                    }
+
                     var ext = Path.GetExtension(f)?.ToLowerInvariant() ?? string.Empty;
                     return enabledExtensions.Contains(ext);
                 }).ToList();
@@ -46,36 +58,51 @@ namespace An2WinFileTransfer.Services
 
             foreach (var file in files)
             {
+                processedFileCount++;
+                var fileInfo = device.GetFileInfo(file);
+
+                _logAction($"Processing file {processedFileCount} of {totalFileCount}. Copied: {copiedFileCount} | Skipped: {skippedFileCount} | Failed: {copyFailedFileCount}");
+
+                if (fileInfo == null)
+                {
+                    copyFailedFileCount++;
+                    continue;
+                }
+
+                var relativePath = GetRelativePath(sourcePath, file);
+
+                var entry = new BackupFileEntry
+                {
+                    RelativePath = relativePath,
+                    Size = fileInfo.Length,
+                    LastWriteTime = fileInfo.LastWriteTime ?? DateTime.MinValue,
+                    CopyStatus = ECopyStatus.Skipped // default
+                };
+
+                manifest.Files.Add(entry);
+
+                if (relativePath.IndexOf("\\.thumbnails\\", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    relativePath.EndsWith("\\.thumbnails", StringComparison.OrdinalIgnoreCase))
+                {
+                    skippedFileCount++;
+                    continue;
+                }
+
+                var localPath = Path.Combine(timestampedRootFolder, relativePath);
+                Directory.CreateDirectory(Path.GetDirectoryName(localPath));
+
                 try
                 {
-                    processedFileCount++;
-                    var fileInfo = device.GetFileInfo(file);
-
-                    _logAction($"Processing file {processedFileCount} of {totalFileCount}. Copied: {copiedFileCount} | Skipped: {skippedFileCount} | Failed: {copyFailedFileCount}");
-
-                    if (fileInfo == null)
-                    {
-                        copyFailedFileCount++;
-                        continue;
-                    }
-
-                    var relativePath = GetRelativePath(sourcePath, file);
-
-                    if (relativePath.IndexOf("\\.thumbnails\\", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                        relativePath.EndsWith("\\.thumbnails", StringComparison.OrdinalIgnoreCase))
-                    {
-                        skippedFileCount++;
-                        continue;
-                    }
-
-                    var localPath = Path.Combine(timestampedRoot, relativePath);
-                    Directory.CreateDirectory(Path.GetDirectoryName(localPath));
-
                     if (ShouldCopyFile(fileInfo, localPath))
                     {
                         device.DownloadFile(file, localPath);
+
                         if (fileInfo.LastWriteTime.HasValue)
+                        {
                             File.SetLastWriteTime(localPath, fileInfo.LastWriteTime.Value);
+                        }
+
+                        entry.CopyStatus = ECopyStatus.Success;
                         copiedFileCount++;
                     }
                     else
@@ -85,9 +112,25 @@ namespace An2WinFileTransfer.Services
                 }
                 catch (Exception ex)
                 {
+                    entry.CopyStatus = ECopyStatus.Failed;
                     copyFailedFileCount++;
                     _logAction($"Error copying {file}: {ex.Message}");
                 }
+            }
+
+            try
+            {
+                manifest.BackupDuration = DateTime.UtcNow - manifest.BackupTime;
+
+                var manifestPath = Path.Combine(timestampedRootFolder, "BackupManifest.json");
+                var json = JsonConvert.SerializeObject(manifest, Formatting.Indented);
+                File.WriteAllText(manifestPath, json);
+
+                _logAction($"Backup manifest saved: {manifestPath}. Backup duration: {manifest.BackupDuration}.");
+            }
+            catch (Exception ex)
+            {
+                _logAction($"Failed to save manifest: {ex.Message}");
             }
 
             _logAction($"Backup completed: Copied={copiedFileCount}, Skipped={skippedFileCount}, Failed={copyFailedFileCount}, Total={processedFileCount}");
@@ -113,7 +156,9 @@ namespace An2WinFileTransfer.Services
         private bool ShouldCopyFile(MediaFileInfo fileInfo, string localPath)
         {
             if (!File.Exists(localPath))
+            {
                 return true;
+            }
 
             var localFile = new FileInfo(localPath);
 
