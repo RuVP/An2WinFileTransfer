@@ -186,9 +186,8 @@ namespace An2WinFileTransfer.UI.Forms
             if (comboBoxDeviceNames.Items.Count == 1)
             {
                 comboBoxDeviceNames.SelectedIndex = 0;
+                _selectedDeviceName = comboBoxDeviceNames.SelectedItem as string;
             }
-
-            _selectedDeviceName = comboBoxDeviceNames.SelectedItem as string;
         }
 
         private void Append(string text)
@@ -252,6 +251,11 @@ namespace An2WinFileTransfer.UI.Forms
                     buttonStartBackup.Enabled = true;
                 }));
             });
+        }
+
+        private void comboBoxDeviceNames_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _selectedDeviceName = comboBoxDeviceNames.SelectedItem as string;
         }
     }
 }
