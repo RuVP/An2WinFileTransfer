@@ -246,7 +246,7 @@ namespace An2WinFileTransfer.UI.Forms
                     _deviceService.DisconnectDevice(device);
                 }
 
-                Invoke((Action)(() =>
+                BeginInvoke((Action)(() =>
                 {
                     _elapsedTimer.Stop();
                     buttonStartBackup.Enabled = true;
