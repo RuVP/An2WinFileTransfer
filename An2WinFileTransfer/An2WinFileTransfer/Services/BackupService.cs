@@ -28,6 +28,13 @@ namespace An2WinFileTransfer.Services
 
             var timestampedRootFolder = CreateNewTimeStampedFolder(targetRoot);
 
+            _logAction("Scanning previous backups...");
+
+            var previousManifests = LoadPreviousManifests(targetRoot);
+            var existingFiles = BuildExistingFileMap(previousManifests);
+
+            _logAction($"Loaded {existingFiles.Count} entries from previous backups.");
+
             var manifest = new BackupManifest
             {
                 BackupTime = DateTime.UtcNow,
@@ -90,6 +97,18 @@ namespace An2WinFileTransfer.Services
 
                 var localPath = Path.Combine(timestampedRootFolder, relativePath);
                 Directory.CreateDirectory(Path.GetDirectoryName(localPath));
+
+                // Skip if file already backed up in a previous manifest
+                if (existingFiles.TryGetValue(relativePath, out var oldEntry))
+                {
+                    if (oldEntry.Size == fileInfo.Length &&
+                        Math.Abs((fileInfo.LastWriteTime - oldEntry.LastWriteTime).Value.TotalSeconds) < 2)
+                    {
+                        entry.CopyStatus = ECopyStatus.Skipped;
+                        skippedFileCount++;
+                        continue;
+                    }
+                }
 
                 try
                 {
@@ -172,6 +191,58 @@ namespace An2WinFileTransfer.Services
             var newFolderPath = Path.Combine(basePath, $"Backup_{timeStamp}");
 
             return Directory.CreateDirectory(newFolderPath).FullName;
+        }
+
+        private List<BackupManifest> LoadPreviousManifests(string baseBackupPath)
+        {
+            var manifests = new List<BackupManifest>();
+
+            try
+            {
+                var manifestFiles = Directory.GetFiles(baseBackupPath, "BackupManifest.json", SearchOption.AllDirectories);
+
+                foreach (var file in manifestFiles)
+                {
+                    try
+                    {
+                        var json = File.ReadAllText(file);
+                        var manifest = JsonConvert.DeserializeObject<BackupManifest>(json);
+
+                        if (manifest != null)
+                        {
+                            manifests.Add(manifest);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logAction($"Failed to read manifest {file}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logAction($"Error while scanning for manifests: {ex.Message}");
+            }
+
+            return manifests;
+        }
+
+        private Dictionary<string, BackupFileEntry> BuildExistingFileMap(IEnumerable<BackupManifest> manifests)
+        {
+            var map = new Dictionary<string, BackupFileEntry>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var manifest in manifests)
+            {
+                foreach (var entry in manifest.Files)
+                {
+                    if (!map.ContainsKey(entry.RelativePath))
+                    {
+                        map[entry.RelativePath] = entry;
+                    }
+                }
+            }
+
+            return map;
         }
     }
 }
