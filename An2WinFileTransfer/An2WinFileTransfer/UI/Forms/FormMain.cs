@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using An2WinFileTransfer.Enums;
 using An2WinFileTransfer.Extensions;
+using An2WinFileTransfer.Interfaces;
 using An2WinFileTransfer.Models;
 using An2WinFileTransfer.Services;
+using Serilog;
 
 namespace An2WinFileTransfer.UI.Forms
 {
@@ -17,6 +19,7 @@ namespace An2WinFileTransfer.UI.Forms
         private Timer _elapsedTimer = new Timer();
         private DateTime backupStartTime;
 
+        private ILoggingService _log;
         private readonly DeviceService _deviceService = new DeviceService();
         private BackupService _backupService;
 
@@ -25,6 +28,14 @@ namespace An2WinFileTransfer.UI.Forms
         public FormMain()
         {
             InitializeComponent();
+
+            // Initialize Serilog from App.config
+            var serilogLogger = new LoggerConfiguration()
+                .ReadFrom.AppSettings()
+                .CreateLogger();
+
+            _log = new LoggingService(serilogLogger, AppendLogToUI);
+
             this.Load += FormMain_Load;
 
             _elapsedTimer.Interval = 1000; // 1 second
@@ -33,6 +44,17 @@ namespace An2WinFileTransfer.UI.Forms
                 var elapsed = DateTime.Now - backupStartTime;
                 labelElapsedTime.Text = $"Elapsed time: {elapsed:hh\\:mm\\:ss}";
             };
+        }
+
+        private void AppendLogToUI(string message)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => AppendLogToUI(message)));
+                return;
+            }
+
+            labelProgress.Text = $"{DateTime.Now:HH:mm:ss} {message}{Environment.NewLine}";
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -228,7 +250,7 @@ namespace An2WinFileTransfer.UI.Forms
             backupStartTime = DateTime.Now;
             _elapsedTimer.Start();
 
-            _backupService = new BackupService(Append);
+            _backupService = new BackupService(_log);
 
             await Task.Run(() =>
             {

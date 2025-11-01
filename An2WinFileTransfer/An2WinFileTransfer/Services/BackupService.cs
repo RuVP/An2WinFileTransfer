@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using An2WinFileTransfer.Enums;
+using An2WinFileTransfer.Interfaces;
 using An2WinFileTransfer.Models;
 using MediaDevices;
 using Newtonsoft.Json;
@@ -11,29 +12,29 @@ namespace An2WinFileTransfer.Services
 {
     public class BackupService
     {
-        private readonly Action<string> _logAction;
+        private readonly ILoggingService _logService;
 
-        public BackupService(Action<string> logAction)
+        public BackupService(ILoggingService log)
         {
-            _logAction = logAction ?? (_ => { });
+            _logService = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         public void BackupFromDevice(MediaDevice device, string sourcePath, string targetRoot, IEnumerable<FileType> fileTypes, bool copyAllFiles)
         {
             if (!device.DirectoryExists(sourcePath))
             {
-                _logAction($"Source folder not found: {sourcePath}");
+                _logService.Warn($"Source folder not found: {sourcePath}");
                 return;
             }
 
             var timestampedRootFolder = CreateNewTimeStampedFolder(targetRoot);
 
-            _logAction("Scanning previous backups...");
+            _logService.Info("Scanning previous backups...");
 
             var previousManifests = LoadPreviousManifests(targetRoot);
             var existingFiles = BuildExistingFileMap(previousManifests);
 
-            _logAction($"Loaded {existingFiles.Count} entries from previous backups.");
+            _logService.Info($"Loaded {existingFiles.Count} entries from previous backups.");
 
             var manifest = new BackupManifest
             {
@@ -42,7 +43,7 @@ namespace An2WinFileTransfer.Services
                 Files = new List<BackupFileEntry>()
             };
 
-            _logAction("Evaluating files to backup...");
+            _logService.Info("Evaluating files to backup...");
 
             var enabledExtensions = new HashSet<string>(
                 fileTypes.Where(ft => ft.IsEnabled && !string.IsNullOrWhiteSpace(ft.Extension))
@@ -68,13 +69,15 @@ namespace An2WinFileTransfer.Services
                 processedFileCount++;
                 var fileInfo = device.GetFileInfo(file);
 
-                _logAction($"Processing file {processedFileCount} of {totalFileCount}. Copied: {copiedFileCount} | Skipped: {skippedFileCount} | Failed: {copyFailedFileCount}");
+                _logService.Info($"Processing file {processedFileCount} of {totalFileCount}. Copied: {copiedFileCount} | Skipped: {skippedFileCount} | Failed: {copyFailedFileCount}");
 
                 if (fileInfo == null)
                 {
                     copyFailedFileCount++;
                     continue;
                 }
+
+                _logService.Info($"Evaluating file: {file}");
 
                 var relativePath = GetRelativePath(sourcePath, file);
 
@@ -95,7 +98,7 @@ namespace An2WinFileTransfer.Services
                     continue;
                 }
 
-                var localPath = Path.Combine(timestampedRootFolder, relativePath);
+                var localPath = Path.Combine(timestampedRootFolder, SanitizePath(relativePath));
                 Directory.CreateDirectory(Path.GetDirectoryName(localPath));
 
                 // Skip if file already backed up in a previous manifest
@@ -133,7 +136,7 @@ namespace An2WinFileTransfer.Services
                 {
                     entry.CopyStatus = ECopyStatus.Failed;
                     copyFailedFileCount++;
-                    _logAction($"Error copying {file}: {ex.Message}");
+                    _logService.Error($"Error copying {file}: {ex.Message}");
                 }
             }
 
@@ -145,14 +148,14 @@ namespace An2WinFileTransfer.Services
                 var json = JsonConvert.SerializeObject(manifest, Formatting.Indented);
                 File.WriteAllText(manifestPath, json);
 
-                _logAction($"Backup manifest saved: {manifestPath}. Backup duration: {manifest.BackupDuration}.");
+                _logService.Info($"Backup manifest saved: {manifestPath}. Backup duration: {manifest.BackupDuration}.");
             }
             catch (Exception ex)
             {
-                _logAction($"Failed to save manifest: {ex.Message}");
+                _logService.Error($"Failed to save manifest: {ex.Message}");
             }
 
-            _logAction($"Backup completed: Copied={copiedFileCount}, Skipped={skippedFileCount}, Failed={copyFailedFileCount}, Total={processedFileCount}");
+            _logService.Info($"Backup completed: Copied={copiedFileCount}, Skipped={skippedFileCount}, Failed={copyFailedFileCount}, Total={processedFileCount}");
         }
 
         private string GetRelativePath(string basePath, string fullPath)
@@ -215,13 +218,13 @@ namespace An2WinFileTransfer.Services
                     }
                     catch (Exception ex)
                     {
-                        _logAction($"Failed to read manifest {file}: {ex.Message}");
+                        _logService.Info($"Failed to read manifest {file}: {ex.Message}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logAction($"Error while scanning for manifests: {ex.Message}");
+                _logService.Error($"Error while scanning for manifests: {ex.Message}");
             }
 
             return manifests;
@@ -243,6 +246,32 @@ namespace An2WinFileTransfer.Services
             }
 
             return map;
+        }
+
+        private string SanitizePath(string relativePath)
+        {
+            foreach (var pathPart in relativePath.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var safePart = SanitizeFileOrFolderName(pathPart);
+                relativePath = relativePath.Replace(pathPart, safePart);
+            }
+
+            return relativePath;
+        }
+
+        private string SanitizeFileOrFolderName(string name)
+        {
+            var invalidChars = Path.GetInvalidFileNameChars()
+                                    .Concat(Path.GetInvalidPathChars())
+                                    .Distinct()
+                                    .ToArray();
+
+            var safePath = string.Join("_",
+                name.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                            .Select(part => string.Concat(part.Select(ch => invalidChars.Contains(ch) ? '_' : ch)))
+            );
+
+            return safePath;
         }
     }
 }
