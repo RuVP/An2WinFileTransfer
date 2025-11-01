@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using An2WinFileTransfer.UI.Forms;
+using Serilog;
 
 namespace An2WinFileTransfer
 {
@@ -12,9 +13,27 @@ namespace An2WinFileTransfer
         [STAThread]
         static void Main()
         {
+            // Initialize Serilog from App.config
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.AppSettings()
+                .CreateLogger();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FormMain());
+
+            try
+            {
+                Log.Information("Application started.");
+                Application.Run(new FormMain());
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Application terminated unexpectedly!");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
     }
 }
