@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using An2WinFileTransfer.Extensions;
 using MediaDevices;
 
 namespace An2WinFileTransfer.Services
@@ -16,12 +17,12 @@ namespace An2WinFileTransfer.Services
 
         public IEnumerable<string> GetConnectedDeviceNames()
         {
-            return _mediaDevices.Select(d => d.FriendlyName);
+            return _mediaDevices.Select(d => d.FriendlyName.IsNullOrEmpty() ? d.Description : d.FriendlyName);
         }
 
         public MediaDevice ConnectToDevice(string deviceName)
         {
-            var device = _mediaDevices.FirstOrDefault(d => d.FriendlyName == deviceName);
+            var device = _mediaDevices.FirstOrDefault(d => d.FriendlyName == deviceName || d.Description == deviceName);
 
             if (device == null)
             {
